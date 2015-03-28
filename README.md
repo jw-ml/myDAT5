@@ -1,2 +1,2 @@
 # myDAT5
-My course repository for GA's Data Science course
+My repository for [General Assembly's](https://generalassemb.ly/) [Data Science](https://generalassemb.ly/education/data-science) course.
