@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-x
 
-# JEREMY WARD
+# jeremy
 # https://gist.github.com/anonymous/d00626b6f29c6093f36a
 # https://gist.github.com/d00626b6f29c6093f36a.git
 
