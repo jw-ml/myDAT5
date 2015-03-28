@@ -1,0 +1,28 @@
+# jeremy - 150328
+# DAT5 Command Line Homework
+# Uses the SMSSpamCollection.txt data available at:
+# https://archive.ics.uci.edu/ml/datasets/SMS+Spam+Collection
+
+[~]$wc SMSSpamCollection.txt
+  5574 92482 477907 SMSSpamCollection.txt
+ 
+[~]$wc SMSSpamCollection.txt | awk '{print $2/$1 " words per text"}'
+  16.5917 words per text
+ 
+[~]$wc SMSSpamCollection.txt | awk '{print $3/$1 " characters per text"}'
+  85.7386 characters per text
+ 
+[~]$grep $'spam\t' SMSSpamCollection.txt | wc | awk '{print $1 " messages are spam"}'
+  747 messages are spam
+ 
+[~]$grep $'ham\t' SMSSpamCollection.txt | wc | awk '{print $1 " messages are spam"}'
+  4827 messages are spam
+ 
+[~]$grep $'spam\t' SMSSpamCollection.txt | wc | awk '{print $2/$1 " words per spam message"}'
+  24.9116 words per spam message
+ 
+[~]$grep $'ham\t' SMSSpamCollection.txt | wc | awk '{print $2/$1 " words per ham message"}'
+  15.3041 words per ham message
+ 
+[~]$grep $'spam\t' SMSSpamCollection.txt >> 'spam_messages.txt'
+[~]$grep $'ham\t' SMSSpamCollection.txt >> 'ham_messages.txt'
