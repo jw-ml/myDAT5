@@ -14,8 +14,7 @@ group A is higher than the mean for group B which means X,Y,Z").
 '''
 # import necessary modules
 import pandas as pd
-import matplotlib.pyplot as plt
-import numpy as np
+#import matplotlib.pyplot as plt
 
 '''
 Part 1
@@ -25,7 +24,8 @@ to see how the file is delimited and how to load it.
 Note:  You do not need to turn in any command line code you may use.
 '''
 # use pandas to load data from url
-auto = pd.read_table('https://raw.githubusercontent.com/justmarkham/DAT5/master/data/auto_mpg.txt', sep='|')
+# auto = pd.read_table('https://raw.githubusercontent.com/justmarkham/DAT5/master/data/auto_mpg.txt', sep='|')
+auto = pd.read_table('auto_mpg.txt', sep='|')   # read_table is more general
 
 
 '''
@@ -91,37 +91,50 @@ to create segments of the data using logical filters and comparing the mpg
 for each segment of the data.
 '''
 
-# mpg gallon by cylinders, model year, and origin
-auto.groupby('cylinders').mpg.mean() # 4 and 5 cylinder autos get the best mpg
-auto.groupby('model_year').mpg.mean() # mpg sees a big jump starting in 1980
-auto.groupby('origin').mpg.mean() # Europe and Japan produce cars with better mpg (but why?)
+# Dropping 3 and 5 cylinder cars because low number of observations
+auto_dropped = auto[(auto.cylinders == 3) | (auto.cylinders == 5)]
+auto = auto[(auto.cylinders != 3) & (auto.cylinders != 5)]
 
-# cylinders by origin
+# mpg gallon by cylinders and origin
+auto.groupby('cylinders').mpg.mean() # 4 cylinder autos get the best mpg
+auto.groupby('origin').mpg.mean() # Europe and Japan produce cars with better mpg (but why?)
+auto.groupby('model_year').mpg.mean() # # mpg sees a big jump starting in 1980
+
+# why do Europe and Japan produce cars with greater mileage?
 auto.groupby('origin').cylinders.describe() # US only producer of cars with 8 cylinders
+auto.groupby(['origin','cylinders']).cylinders.count() # US produces A LOT of cars with 6 and 8 cylinders (relative to JP and EU)
 auto[auto.cylinders == 4].groupby('origin').mpg.mean() # US on par with Europe
 auto[auto.cylinders == 6].groupby('origin').mpg.mean() # US on par with Europe
 
-# what is displacement?
-auto.groupby('cylinders').displacement.mean()
-auto.groupby('origin').displacement.mean()
-auto[auto.cylinders == 4].groupby('origin').displacement.mean() # US produces autos with greater displacement
-auto[auto.cylinders == 6].groupby('origin').displacement.mean() # US produces 6 cyl autos with much greater displacement
+# how does mpg relate to model year?
+auto.groupby(['origin', 'model_year']).mpg.mean() # jump might be driven by change in US mpg
+auto.groupby(['origin', 'model_year']).cylinders.mean() # US moves towards more 4 cylinder cars starting in 1980
+
+# what about displacement?
+auto.groupby('cylinders').displacement.mean() # displacement increases with number of cylinders
+auto.groupby(['origin', 'cylinders']).displacement.mean() # both US 4 and 6 cylinders have greater displacement on average than JP or EU
 
 # is weight a factor?
 auto.groupby('cylinders').weight.describe()
-bn = pd.cut(auto.weight, 10) # create bins to help analyze weight
+bn = pd.cut(auto.weight, 20) # create bins to help analyze weight
 auto.groupby(bn).mpg.mean() # mpg decreases with weight
 auto.groupby(bn).cylinders.mean() # num cylinders increases with weight
 auto.groupby(bn).displacement.mean() # displacement increases with weight
-auto.groupby('cylinders').weight.mean()
+auto.groupby('cylinders').weight.mean() # number of cylinders increases with weight (or vice versa ... ?)
 
 # lastly, what is the impact of horsepower
 auto.groupby('cylinders').horsepower.mean()
 auto.groupby(bn).horsepower.mean()
-hpbn = pd.cut(auto.horsepower, 10)
+hpbn = pd.cut(auto.horsepower, 20)
 auto.groupby(hpbn).mpg.mean()
 auto.groupby(hpbn).weight.mean()
 auto.groupby(hpbn).cylinders.mean()
+
+# WHAT ARE SOME KEY TAKEAWAYS
+#   1. The US makes larger cars with more engines, and those cars have the lowest mpg
+#   2. There is very high correlation between num of cylinders, weight, horsepower, and displacement
+#       - all of which lead to lower mpg
+#   3. The US started a shift towards more 4 cylinder cars around 1980 which have better mpg
 
 
 
