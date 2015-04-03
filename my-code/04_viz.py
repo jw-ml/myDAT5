@@ -5,6 +5,7 @@ CLASS:  Visualization
 # imports
 import pandas as pd
 import matplotlib.pyplot as plt
+import numpy as np
 
 # import the data available at https://raw.githubusercontent.com/justmarkham/DAT5/master/data/drinks.csv
 drinks = pd.read_csv('https://raw.githubusercontent.com/justmarkham/DAT5/master/data/drinks.csv')
@@ -65,7 +66,6 @@ drinks.plot(kind='scatter', x='beer_servings', y='wine_servings', c='spirit_serv
 plt.show()
 
 # same scatterplot, except all European countries are colored red
-import numpy as np
 colors = np.where(drinks.continent=='EU', 'r', 'b')
 drinks.plot(x='beer_servings', y='wine_servings', kind='scatter', c=colors)
 plt.show()
@@ -114,15 +114,33 @@ interpretation of the output (e.g. "This plot shows X,Y,Z" or "The mean for
 group A is higher than the mean for group B which means X,Y,Z").
 '''
 
+# loads the data from the url provided
+auto = pd.read_table('https://raw.githubusercontent.com/justmarkham/DAT5/master/data/auto_mpg.txt', sep='|')
+
 '''
 Part 1
 Produce a plot that compares the mean mpg for the different numbers of cylinders.
 '''
 
+# plots the mean mpg for differnt cylinders
+auto.groupby('cylinders').mpg.mean().plot(kind='bar', title='Average MPG by number of cylinders', ylim=(0,40))
+plt.xlabel('Number of cylinders')
+plt.ylabel('Miles per gallon')
+plt.show()
+
+# takeaway: 4 cylinder cars get the best gas mileage on average, mpg appears to decrease as
+# the number of cylinders increase (with the exception of 3 cylinder cars)
+
 '''
 Part 2
 Use a scatter matrix to explore relationships between different numeric variables.
 '''
+pd.scatter_matrix(auto)
+plt.show()
+
+# takeaway: weight, horsepower, and displacement have very similar relationships with mpg - that is, (not quite linearly) negatively correlated
+# takeaway: similarly, weight, horsepower, and displacement are positively correlated with each other
+# takeaway: mpg seems to improve slightly over time
 
 '''
 Part 3
@@ -134,3 +152,56 @@ Use a plot to answer the following questions:
 -Do cars made before or after 1975 get better average mpg? (Hint: You need to 
 create a new column that encodes whether a year is before or after 1975.)
 '''
+# creates a color map for key cylinder categories
+cyl = np.where(auto.cylinders==4, 'r', np.where(auto.cylinders==6,'b',np.where(auto.cylinders==8,'g', 'w')))
+orgn = np.where(auto.origin==1, 'b', np.where(auto.origin==2,'y','r'))
+
+# choose your color map!
+cmap = orgn
+
+# creates a scatter plot of weight and mpg
+auto.plot(kind='scatter', x='weight', y='mpg', c=cmap)
+plt.title('Weight and MPG')
+plt.xlabel('Weight')
+plt.ylabel('MPG')
+plt.show()
+
+# takeaway: mpg decreases with weight. There is definitely a negative correlation, unclear if it is a linear correlation
+# takeaway: adding the colormap by cylinder, we see that 4 cylinders get the best mpg and 8 cylinders get the worst
+#    also, it appears that 4 cylinders weigh less than 6 cylinders which weight less than 8 cylinders
+# takeawy: adding the colormap by origin, we see that the US makes cars that weigh more and get lower mpg
+
+# creates a scatter plot of horsepower and displacement
+auto.plot(kind='scatter', x='horsepower', y='displacement', c=cmap)
+plt.show()
+
+# takeaway: displacement is positively correlated with horsepower. US cars have greater displacement
+#    and horsepower than most EU and JP autos; same with 8 vs 6 and 4 cylinder cars
+
+# Histogram of acceleration
+auto.acceleration.hist(bins=20)
+plt.show()
+
+# Density of acceleration
+auto.acceleration.plot(kind='density')
+plt.show()
+
+# AHHHHH.....
+
+
+
+
+ # how is mpg spread for cars with different number of cylinders
+auto.boxplot(column='mpg', by='cylinders')
+plt.show()
+
+# 
+auto['after_75'] = np.where(auto.model_year <= 75, 0, 1)
+
+auto.boxplot(column='mpg', by='after_75')
+plt.show()
+
+auto[auto.after_75==0].mpg.plot(kind='density')
+auto[auto.after_75==1].mpg.plot(kind='density')
+plt.show()
+
