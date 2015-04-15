@@ -5,6 +5,8 @@
 # import necessary modules
 import pandas as pd
 import matplotlib.pyplot as plt
+import numpy as np
+import string as string
 
 # load data from Kaggle training set; 
 # ~~> description of data: http://www.kaggle.com/c/titanic-gettingStarted/data
@@ -62,6 +64,44 @@ tr['Price_per_passenger'] = tr.Fare / tr.Num_on_ticket
 
 tr.boxplot(column='Price_per_passenger', by='Pclass')
 plt.show()
+
+def remove_numeric(k):
+    try:
+        temp = string.maketrans('','')
+        alf = k.translate(temp, string.digits)
+        return alf[0]
+    except:
+        return 'Z'
+    
+
+def remove_alpha(k):
+    try:
+        temp = string.maketrans('','')
+        alf = temp.translate(temp, string.digits)
+        k = k.translate(temp, alf)
+        if k == '':
+            return 999
+        else:
+            return int(k)
+    except:
+        return 999
+
+# ASSUMPTION: Some passengers have multiple cabins - it appears that they are all
+#   either even numbered or all odd numbered. Therefore, there is no reason to separate 
+#   out into multiple rooms for purposes of this analysis
+tr['Cabin_lvl'] = tr.Cabin.apply(lambda x: remove_numeric(x))
+tr['Cabin_num'] = tr.Cabin.apply(lambda x: remove_alpha(x))
+tr['Ship_side'] = np.where(tr.Cabin_num == 999, 0, \
+                    np.where(tr.Cabin_num % 2 == 0, 2, 1))
+
+tr['Cabin_level'] = tr.Cabin_lvl.map({'A': 0, 'B':1, 'C':2, 'D':3, 'E':4, 'F':5, 'G':6, 'T':7, 'Z':8})
+
+tr.groupby('Cabin_level').Survived.mean().plot(kind='bar')
+plt.show()
+
+tr.groupby('Ship_side').Survived.mean().plot(kind='bar')
+plt.show()
+
 
 
 ''' family names and titles??
